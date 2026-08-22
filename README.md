@@ -5,4 +5,8 @@ Calculate Alcohol Related Disease Impact (ARDI)
 - [CDC ARDI](https://www.cdc.gov/alcohol/ardi/) - has been (temporarily we hope) removed
 - [ARDI Announcements](https://www.cdc.gov/alcohol/ardi/announcement.html) - still exists, good citations
 - [ARDI Methods](https://www.cdc.gov/alcohol/ardi/methods.html) - Includes links to announcements, methods, alcohol-related ICD-codes, FAQ, glossary
+- [ARDI Custom Data User Manual / Sample Code](https://stacks.cdc.gov/view/cdc/251660) - ([direct link](https://stacks.cdc.gov/view/cdc/251660/cdc_251660_DS1.pdf) to PDF may work)
+
+# Articles
 - [Esser et al. (2022)](https://pubmed.ncbi.nlm.nih.gov/35040769/) - Central article on general method.
+- More to come...
