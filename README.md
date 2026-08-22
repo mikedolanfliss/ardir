@@ -1,6 +1,13 @@
 # ardir
 Calculate Alcohol Related Disease Impact (ARDI)
 
+# Notes / Current State:
+Intro paragraph here about the CSTE subcommittee and the sunset (temp we hope) of the Alcohol team. SAS to R, etc.
+
+
+
+
+
 # Relevant URLs:
 - [CDC ARDI](https://www.cdc.gov/alcohol/ardi/) - has been (temporarily we hope) removed
 - [ARDI Announcements](https://www.cdc.gov/alcohol/ardi/announcement.html) - still exists, good citations
