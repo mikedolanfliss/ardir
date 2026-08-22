@@ -39,6 +39,8 @@ add_ardi_age_groups = function(x){
 }
 
 # Example - could use a set of fake / example death records saved in the package.
-tibble(age = sample(1:120, size = 20, replace = T)) |> 
-  mutate(age_group = age |> add_ardi_age_groups())
+tibble(age = sample(1:120, size = 20, replace = T)) |> # Create an example tibble
+  mutate(age_group = age |> add_ardi_age_groups()) # Example of using the function for adding age groups
+# TODO Second example here could demonstrate "direct" use of the exposed table with a direct left join,
+# similar to how it's done in the function
 
