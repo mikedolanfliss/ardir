@@ -18,4 +18,12 @@ fars_test_tbl |> filter(dataset == "DRIMPAIR") |> pull(data)
 
 # By Person ####
 # Get crashes by person seems useful, has drinking and multiple alcohol variables
+fars_person_tbl = "https://crashviewer.nhtsa.dot.gov/crashviewer/CrashAPI/crashes/GetCrashesByPerson?age=30&sex=2&seatPos=11&injurySeverity=2&fromCaseYear=2014&toCaseYear=2015&state=1&includeOccupants=true&includeNonOccupants=true&format=csv" |> read_csv()
 "https://crashviewer.nhtsa.dot.gov/crashviewer/CrashAPI/crashes/GetCrashesByPerson?age=30&sex=2&seatPos=11&injurySeverity=2&fromCaseYear=2014&toCaseYear=2015&state=1&includeOccupants=true&includeNonOccupants=true&format=csv" |> read_csv() |> head(1) |> t()
+
+fars_person_tbl
+
+fars_person_tbl |> names()
+fars_person_tbl |> select(matches("age|pos")) # looking for the right variables... ?
+fars_person_tbl |> View()
+# 0-14, 15-19, 20-24, 25-34, 35-44, 45-54, 55-64, 65+

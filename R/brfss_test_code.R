@@ -42,3 +42,7 @@ brfss_alcohol_tbl = base_request_url |> read_csv() # This ALSO works, without th
 brfss_alcohol_tbl |> count(break_out) # where are the breakouts?
 brfss_alcohol_tbl |> count(locationabbr) # 54 locations
 brfss_alcohol_tbl |> count(year) # 2011-2024 at the moment (Aug 2026).
+brfss_alcohol_tbl |> count(question)
+brfss_alcohol_tbl |> count(question) |> View()
+
+brfss_alcohol_tbl
