@@ -88,6 +88,12 @@ fars_bac_pct_tbl = fars_bac_pct_tbl |>
   mutate(pct_alc_attributable = n_alc_att / total_n)
 fars_bac_pct_tbl
 fars_bac_pct_tbl |> saveRDS("data/fars_bac_pct_tbl.RDS")
+# TODO will need to expand this for age (not age_group) joining. This table will be row_bound to the other documented ones. 
 # TODO calculate US-wide? Or just join into national data allowing state variation
+# TODO project today()'s yearly AAFs by duplicating prior year or a simple linear / loess type projection?
 
-fars_bac_pct_tbl
+# fars_bac_pct_tbl |> filter(state == "North Carolina") |> 
+#   ggplot(aes(x = year, y = pct_alc_attributable, color = age_group)) +
+#   facet_wrap(~sex)+
+#   geom_smooth(se = F)
+
