@@ -16,7 +16,7 @@
 # https://data.cdc.gov/api/v3/views/d2rk-yvas/query.csv?query=SELECT%0A%20%20%60year%60%2C%0A%20%20%60locationabbr%60%2C%0A%20%20%60locationdesc%60%2C%0A%20%20%60class%60%2C%0A%20%20%60topic%60%2C%0A%20%20%60question%60%2C%0A%20%20%60response%60%2C%0A%20%20%60break_out%60%2C%0A%20%20%60break_out_category%60%2C%0A%20%20%60sample_size%60%2C%0A%20%20%60data_value%60%2C%0A%20%20%60confidence_limit_low%60%2C%0A%20%20%60confidence_limit_high%60%2C%0A%20%20%60display_order%60%2C%0A%20%20%60data_value_unit%60%2C%0A%20%20%60data_value_type%60%2C%0A%20%20%60data_value_footnote_symbol%60%2C%0A%20%20%60data_value_footnote%60%2C%0A%20%20%60datasource%60%2C%0A%20%20%60classid%60%2C%0A%20%20%60topicid%60%2C%0A%20%20%60locationid%60%2C%0A%20%20%60breakoutid%60%2C%0A%20%20%60breakoutcategoryid%60%2C%0A%20%20%60questionid%60%2C%0A%20%20%60responseid%60%2C%0A%20%20%60geolocation%60%0AWHERE%20caseless_one_of(%60class%60%2C%20%22Alcohol%20Consumption%22)%0AORDER%20BY%20%60year%60%20DESC%20NULL%20FIRST%2C%20%60locationabbr%60%20ASC%20NULL%20LAST
 # https://github.com/Chicago/RSocrata
 
-# library(RSocrata) # FYI, out of date for this version of R.
+# library - RSocrata # FYI, out of date for this version of R.
 
 ## Polite BRFSS call (attempt) #### 
 # Developed the "gimme alcohol consumption data" pull here: 
