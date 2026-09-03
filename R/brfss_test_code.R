@@ -15,8 +15,10 @@
 # Seems like one could build a query and then attach an API endpoint call to it using the Socrata interface. Socrata package may also help.
 # https://data.cdc.gov/api/v3/views/d2rk-yvas/query.csv?query=SELECT%0A%20%20%60year%60%2C%0A%20%20%60locationabbr%60%2C%0A%20%20%60locationdesc%60%2C%0A%20%20%60class%60%2C%0A%20%20%60topic%60%2C%0A%20%20%60question%60%2C%0A%20%20%60response%60%2C%0A%20%20%60break_out%60%2C%0A%20%20%60break_out_category%60%2C%0A%20%20%60sample_size%60%2C%0A%20%20%60data_value%60%2C%0A%20%20%60confidence_limit_low%60%2C%0A%20%20%60confidence_limit_high%60%2C%0A%20%20%60display_order%60%2C%0A%20%20%60data_value_unit%60%2C%0A%20%20%60data_value_type%60%2C%0A%20%20%60data_value_footnote_symbol%60%2C%0A%20%20%60data_value_footnote%60%2C%0A%20%20%60datasource%60%2C%0A%20%20%60classid%60%2C%0A%20%20%60topicid%60%2C%0A%20%20%60locationid%60%2C%0A%20%20%60breakoutid%60%2C%0A%20%20%60breakoutcategoryid%60%2C%0A%20%20%60questionid%60%2C%0A%20%20%60responseid%60%2C%0A%20%20%60geolocation%60%0AWHERE%20caseless_one_of(%60class%60%2C%20%22Alcohol%20Consumption%22)%0AORDER%20BY%20%60year%60%20DESC%20NULL%20FIRST%2C%20%60locationabbr%60%20ASC%20NULL%20LAST
 # https://github.com/Chicago/RSocrata
+# App token sign up on this page: https://dev.socrata.com/foundry/data.cdc.gov/dttw-5yxu 
 
 # library - RSocrata # FYI, out of date for this version of R.
+# https://ryanzomorrodi.github.io/socratadata/ also exists and seems more modern.
 
 ## Polite BRFSS call (attempt) #### 
 # Developed the "gimme alcohol consumption data" pull here: 
@@ -36,13 +38,42 @@
 #   distinct() # In case API calls overlap
 
 # Rude BRFSS call / test - just ask ###
+
+# "https://data.cdc.gov/resource/d2rk-yvas.csv" # Endpoint
+# API documentation: https://dev.socrata.com/foundry/data.cdc.gov/d2rk-yvas 
+
 library(tidyverse)
+library(gt)
+library(gtsummary)
+
 base_request_url = "https://data.cdc.gov/api/v3/views/d2rk-yvas/query.csv?query=SELECT%0A%20%20%60year%60%2C%0A%20%20%60locationabbr%60%2C%0A%20%20%60locationdesc%60%2C%0A%20%20%60class%60%2C%0A%20%20%60topic%60%2C%0A%20%20%60question%60%2C%0A%20%20%60response%60%2C%0A%20%20%60break_out%60%2C%0A%20%20%60break_out_category%60%2C%0A%20%20%60sample_size%60%2C%0A%20%20%60data_value%60%2C%0A%20%20%60confidence_limit_low%60%2C%0A%20%20%60confidence_limit_high%60%2C%0A%20%20%60display_order%60%2C%0A%20%20%60data_value_unit%60%2C%0A%20%20%60data_value_type%60%2C%0A%20%20%60data_value_footnote_symbol%60%2C%0A%20%20%60data_value_footnote%60%2C%0A%20%20%60datasource%60%2C%0A%20%20%60classid%60%2C%0A%20%20%60topicid%60%2C%0A%20%20%60locationid%60%2C%0A%20%20%60breakoutid%60%2C%0A%20%20%60breakoutcategoryid%60%2C%0A%20%20%60questionid%60%2C%0A%20%20%60responseid%60%2C%0A%20%20%60geolocation%60%0AWHERE%20caseless_one_of(%60class%60%2C%20%22Alcohol%20Consumption%22)%0AORDER%20BY%20%60year%60%20DESC%20NULL%20FIRST%2C%20%60locationabbr%60%20ASC%20NULL%20LAST"
 brfss_alcohol_tbl = base_request_url |> read_csv() # This ALSO works, without the limit / offset. Website says it won't.
-brfss_alcohol_tbl |> count(break_out) # where are the breakouts?
-brfss_alcohol_tbl |> count(locationabbr) # 54 locations
-brfss_alcohol_tbl |> count(year) # 2011-2024 at the moment (Aug 2026).
-brfss_alcohol_tbl |> count(question)
-brfss_alcohol_tbl |> count(question) |> View()
 
-brfss_alcohol_tbl
+# Exploration
+# brfss_alcohol_tbl |> count(break_out) # where are the breakouts?
+# brfss_alcohol_tbl |> count(locationabbr) # 54 locations
+# brfss_alcohol_tbl |> count(year) # 2011-2024 at the moment (Aug 2026).
+# brfss_alcohol_tbl |> count(question)
+# brfss_alcohol_tbl |> count(year, topic, question) |> mutate(q = "yes") |> pivot_wider(names_from = "year", values_from = q) |> arrange(topic)
+# brfss_alcohol_tbl |> count(year, topic) |> mutate(q = "yes") |> pivot_wider(names_from = "year", values_from = q) |> arrange(topic)
+# brfss_alcohol_tbl |> count(topic, response) 
+# brfss_alcohol_tbl |> select(year, locationabbr, class, topic, question, response, break_out, data_value_type) |> gtsummary::tbl_summary()
+
+# Fake dataset for testing ####
+brfss_alcohol_recode_tbl = brfss_alcohol_tbl |> 
+  mutate(response_recoded = case_when(
+    response |> str_detect("Do not meet")~ "No",
+    response |> str_detect("Meet criteria")~ "Yes",
+    T~response)) |> 
+  filter(response_recoded == "Yes") |> 
+  select(year, state = locationabbr, topic, sample_size, data_value, matches("confidence"))
+
+
+brfss_alcohol_recode_tbl 
+brfss_alcohol_recode_tbl |> count(topic, response_recoded)
+
+
+#TODO  Will need to temporarily fake sex data here.
+
+# ALTERNATIVE: RAW DATA ####
+# https://data.cdc.gov/api/v3/views/iuq5-y9ct/query.csv

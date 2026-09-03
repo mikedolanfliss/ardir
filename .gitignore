@@ -50,3 +50,6 @@ rsconnect/
 
 # Temp processing folder
 temp/
+
+# Local Credentials - public data, but still
+creds/

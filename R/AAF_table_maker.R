@@ -17,8 +17,9 @@ rr_tbl = rr_tbl_wide |>
   separate(consumption_sex, into = c("consumption", "sex")) |> 
   pivot_wider(names_from = c("consumption"), values_from = "RR", names_prefix = "RR_")
 rr_tbl # tidy-long for now, may want to split by sex only and go wide with consumption
+summarize(.groups = "drop")
 
-# Prev
+# Prev ####
 prev_tbl_wide = workbook_url |> str_glue(sheetid = 61349445) |> read_csv()
 prev_tbl = prev_tbl_wide |> 
   pivot_longer(cols = matches("year_"), names_to = "year", values_to = "prev") |> 
@@ -39,8 +40,11 @@ aaf_indirect_tbl = prev_tbl |>
 aaf_indirect_tbl
 # aaf_indirect_tbl |> View()
   
+# FARS BAC % table ####
+# %alcohol attributable (>=.08 BAC by anyone in crash) by year, state, age_group, sex
+fars_bac_pct_tbl = readRDS("data/fars_bac_pct_tbl.RDS")
 
-#  Can left_join the AAF in "sections"
+# IDEA: Can left_join the AAF to deaths in "sections"
 
 # Table join tests ####
 ## Expansion join ####
