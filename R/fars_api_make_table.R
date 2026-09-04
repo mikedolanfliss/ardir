@@ -102,6 +102,22 @@ mvc_aaf_tbl
 mvc_aaf_tbl |> saveRDS("data/mvc_aaf_tbl.RDS")
 mvc_aaf_tbl |> write_csv("data/mvc_aaf_tbl.csv")
 
+# Quick testing (should be external report or file)
+mvc_aaf_tbl |> arrange(state, year, sex, age_group) |> filter(state == "North Carolina", year == 2024)
+ggplot(mvc_aaf_tbl |> filter(state == "North Carolina"), aes(x = age_group, color = year, y = pct_alc_attributable, group = year))+
+  geom_line(stat = "smooth", se = F, alpha = 0.7)+
+  facet_grid(.~sex)+
+  theme_minimal()+
+  labs(title = "NC MVC AAFs")
+ggsave("testing/MVC AAFs - North Carolina Graph.png")
+
+ggplot(mvc_aaf_tbl |> filter(state == "Rhode Island"), aes(x = age_group, color = year, y = pct_alc_attributable, group = year))+
+  geom_line(stat = "smooth", se = F, alpha = 0.7)+
+  facet_grid(.~sex)+
+  theme_minimal()+
+  labs(title = "Rhode Island MVC AAFs")
+ggsave("testing/MVC AAFs - Rhode Island Graph.png")
+
 # TODO subfolder under data (FARS, BRFSS, etc.
 # TODO will need to expand this for age (not age_group) joining. This table will be row_bound to the other documented ones. 
 # TODO calculate US-wide? Or just join into national data allowing state variation

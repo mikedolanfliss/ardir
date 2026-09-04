@@ -17,6 +17,8 @@ library(janitor)
 #   str_replace("YOUR_APP_TOKEN", read_csv("creds/cred_tbl.csv") |> pull(app_token)) |> 
 #   read_csv()
 
+# Calculated variables: https://www.cdc.gov/brfss/annual_data/2024/pdf/2024-calculated-variables-version4-508.pdf
+
 # Download raw, record level BRFSS. Try to shrink this.
 
 # Year over year BRFSS data: https://www.cdc.gov/brfss/annual_data/annual_2024.html
