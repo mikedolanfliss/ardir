@@ -20,5 +20,9 @@ brfss_tbl |> count(topic)
 brfss_tbl |> count(break_out)
 brfss_tbl |> count(topic, question)
 
+brfss_tbl |> count(question) |> pull(question)
 # non drinkers - no to 1 drink within 30 days
 # low = 
+
+
+# For BRFSS, the variables we need are: survey year, sex, _age80, alcday5, avedrnk3, drnk3ge5, maxdrnks, _rfbing6, drnkany5, _sststr, _strwt and _llcpwt

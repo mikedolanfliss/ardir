@@ -72,7 +72,7 @@ fars_bac_pct_tbl = fars_person_sm_tbl |>
   arrange(year, state, age_group, sex) |> 
   complete(year, state, age_group, sex, direct_alc_attributable, fill = list(n = 0))
 
-fars_bac_pct_tbl = fars_bac_pct_tbl |> 
+fars_aaf_pct_tbl = fars_bac_pct_tbl |> 
   left_join(
     fars_bac_pct_tbl |> 
       group_by(year, state, age_group, sex) |> 
@@ -80,5 +80,6 @@ fars_bac_pct_tbl = fars_bac_pct_tbl |>
   filter(direct_alc_attributable) |> 
   mutate(pct_alc_attributable = n / total_n)
 
+fars_bac_pct_tbl |> saveRDS("data/fars_aaf_tbl.rds")
 fars_bac_pct_tbl |> saveRDS("data/fars_bac_pct_tbl.rds")
 # TODO question - drop missing age -> missing age group?

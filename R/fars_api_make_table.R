@@ -8,6 +8,7 @@ library(tictoc)
 # API REQUEST ####
 # TODO write an API friendly read_csv() that waits a second beteween calls
 # TODO switch to all states. Consider making this a function so you can ask for your state of interest. 
+# TODO save original file to temp directory locally (not github). 
 tic("Read all FARS person data from API")
 fars_request_tbl = tibble(
   year = 2010:2024 |> as.character(),
@@ -17,12 +18,21 @@ fars_request_tbl = tibble(
 toc() # ~40 seconds for 2010-2024, 1 state; 10-15min for every state (state=*)
 # TODO SAVE, SHRINK, and REREAD! if this file is in data, don't redownload?
 # Could consider dropping in a .ignore folder.
-# fars_request_tbl |> saveRDS("data/fars_request_tbl.rds") # 86 megs, 1.3M rows x 162 variables
+# fars_request_tbl |> saveRDS("temp/fars_request_tbl.rds") # 86 megs, 1.3M rows x 162 variables
 
 # CREATE & RECODE PERSON TABLE ####
 fars_person_tbl = fars_request_tbl |> 
   unnest(data) |> 
   mutate(across(c(caseyear, st_case, age, alc_res), as.integer))
+
+# Shrink to just vars we need ####
+fars_person_sm_tbl = fars_person_tbl |> 
+  select(year = caseyear, state = statename, st_case, age, agename, sex = sexname, inj_kabco = inj_sevname, alc_bac_result = alc_res, alc_bac_text = alc_resname) # seems like what we need?
+# TODO Save here
+fars_person_sm_tbl |> saveRDS("data/fars_person_sm_tbl_orig.rds")
+
+# Pick up analysis here
+fars_person_sm_tbl = readRDS("data/fars_person_sm_tbl_orig.rds")
 
 get_mvc_age_group = function(x){  # Helper function for age group recoding - external table is cleaner
   age_tbl = tribble(
@@ -44,12 +54,6 @@ get_mvc_age_group = function(x){  # Helper function for age group recoding - ext
   return(tbl_to_return |> pull(age_group))
 }
 # tibble(x = sample(1:100, 10)) |> mutate(age_group = x |> get_mvc_age_group())
-
-# Shrink to just vars we need ####
-fars_person_sm_tbl = fars_person_tbl |> 
-  select(year = caseyear, state = statename, st_case, age, agename, sex = sexname, inj_kabco = inj_sevname, alc_bac_result = alc_res, alc_bac_text = alc_resname) # seems like what we need?
-# TODO Save here
-fars_person_sm_tbl |> saveRDS("data/fars_person_sm_tbl_orig.rds")
 
 fars_person_sm_tbl = fars_person_sm_tbl |> 
   filter(sex %in% c("Male", "Female"), !is.na(sex), age < 120, !is.na(age)) |> 
@@ -85,7 +89,7 @@ fars_bac_pct_tbl = fars_person_sm_tbl |>
   arrange(year, state, age_group, sex) |> 
   complete(year, state, age_group, sex, direct_alc_attributable, fill = list(n = 0))
 
-fars_bac_pct_tbl = fars_bac_pct_tbl |> 
+mvc_aaf_tbl = fars_bac_pct_tbl |> 
   left_join( # Join total counts
     fars_bac_pct_tbl |> 
       group_by(year, state, age_group, sex) |> 
@@ -94,9 +98,11 @@ fars_bac_pct_tbl = fars_bac_pct_tbl |>
   select(-direct_alc_attributable) |> 
   rename(n_alc_att = n) |> 
   mutate(pct_alc_attributable = n_alc_att / total_n)
-fars_bac_pct_tbl
-fars_bac_pct_tbl |> saveRDS("data/fars_bac_pct_tbl.RDS")
-fars_bac_pct_tbl |> write_csv("data/fars_bac_pct_tbl.csv")
+mvc_aaf_tbl
+mvc_aaf_tbl |> saveRDS("data/mvc_aaf_tbl.RDS")
+mvc_aaf_tbl |> write_csv("data/mvc_aaf_tbl.csv")
+
+# TODO subfolder under data (FARS, BRFSS, etc.
 # TODO will need to expand this for age (not age_group) joining. This table will be row_bound to the other documented ones. 
 # TODO calculate US-wide? Or just join into national data allowing state variation
 # TODO project today()'s yearly AAFs by duplicating prior year or a simple linear / loess type projection?
