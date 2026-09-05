@@ -1,7 +1,16 @@
 library(tidyverse)
-x = c("F103", "F106", "F109", "D120")
-x |> str_detect("F10[3-9]")
 
-x = c("K71", "K704", "K705", "K709")
-x |> str_detect("K70[0-49]")
+source("R/cod_code.R")
+source("R/create_synth_death_data.R")
+
+
+ardi_cod_tbl = get_ardi_case_tbl() 
+ardi_cod_tbl |> count(icd10_codes_text, sort = T) # Should be all 1.
+# TODO need to split / expand this table by cod_sex and maybe age. Can recode regex en mass but need to left-join as well. A little awkward.
+
+lookup_tbl = ardi_cod_tbl |> select(regex = icd10_code_regex, label = cod_long) |> print(n=Inf)
+
+cod_test_tbl = create_synth_death_data(1000000) |> # Label 1M ICD codes
+  mutate(cod_long = cod |> recode_values_regex_tbl(lookup_tbl)) |>
+cod_test_tbl |> count(cod_long)
 
