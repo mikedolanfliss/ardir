@@ -1,3 +1,5 @@
+# TODO across the board check naming conventions - ardi_cod_long is probably ideal, for example
+
 workbook_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIiNisnSOi-NJbf8ZP9BnaF_p5en2yiTsSc-UNmYrwpN9vw-eMIAfu7ix_zD915jMdYDCgVmPIgZse/pub?gid={sheetid}&single=true&output=csv"
 
 # GENERIC HELPFUL FUNCTIONS ####
