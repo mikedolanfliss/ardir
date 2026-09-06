@@ -1,7 +1,8 @@
 # AAF reader
 library(tidyverse)
-library(validate) # for table integrity testing
+# library(validate) # for table integrity testing TODO
 # Should some of this be git-ignored?
+
 
 # Cause table ####
 workbook_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIiNisnSOi-NJbf8ZP9BnaF_p5en2yiTsSc-UNmYrwpN9vw-eMIAfu7ix_zD915jMdYDCgVmPIgZse/pub?gid={sheetid}&single=true&output=csv"
@@ -17,7 +18,7 @@ rr_tbl = rr_tbl_wide |>
   separate(consumption_sex, into = c("consumption", "sex")) |> 
   pivot_wider(names_from = c("consumption"), values_from = "RR", names_prefix = "RR_")
 rr_tbl # tidy-long for now, may want to split by sex only and go wide with consumption
-summarize(.groups = "drop")
+
 
 # Prev ####
 prev_tbl_wide = workbook_url |> str_glue(sheetid = 61349445) |> read_csv()
@@ -42,7 +43,10 @@ aaf_indirect_tbl
   
 # FARS BAC % table ####
 # %alcohol attributable (>=.08 BAC by anyone in crash) by year, state, age_group, sex
-fars_bac_pct_tbl = readRDS("data/fars_bac_pct_tbl.RDS")
+mvc_aaf_tbl = readRDS("data/mvc_aaf_tbl.RDS")
+mvc_aaf_tidy_tbl = mvc_aaf_tbl |> 
+  mutate(ardi_cod_long = "Motor-vehicle traffic crashes") |> 
+  expand_age_range()
 
 # IDEA: Can left_join the AAF to deaths in "sections"
 
@@ -52,16 +56,18 @@ fars_bac_pct_tbl = readRDS("data/fars_bac_pct_tbl.RDS")
 # Could also segment join (and then sum across them, e.g. cause only, cause + age, cause + sex, etc.
 pivot_test_tbl = workbook_url |> str_glue(sheetid = 1564529729) |> read_csv()
 
-expand_age_range = function(this_tbl){ # TODO make this lazy eval
-  # TODO check that there's a variable called age rather than assume
-  # TODO / FYI - currently must be contiguous age ranges. If NA, could expand from 0-120 for a left_join.
-  return_tbl = this_tbl |> 
-    separate_wider_delim(age, delim = ":", names = c("age_low", "age_high")) |> 
-    mutate(age_list = map2(age_low, age_high, \(l, h){l:h})) |> 
-    select(-age_low, -age_high) |> 
-    unnest(age_list)
-  return(return_tbl)
-}
 pivot_test_tbl |> expand_age_range()
+
+
+# AAF table = 
+# [DIRECT] + (...add years)
+# [INDIRECT] + (=RR + Prev)
+# [FARS] +
+# [VDRS or SUDORS] (optional)
+
+
+ardi_cod_lookup_tbl = fetch_ardi_cod_tbl() # Retrieve from online / TODO Testing
+
+aaf_direct_tbl = fetch_direct_aaf_tbl()
 
 

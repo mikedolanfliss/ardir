@@ -1,10 +1,8 @@
 # ardir
-Calculate Alcohol Related Disease Impact (ARDI)
+Calculate Alcohol Related Disease Impact (ARDI) in R. Pronounced "Ardy-Arr"
 
 # Notes / Current State:
 Intro paragraph here about the CSTE subcommittee and the sunset (temp we hope) of the Alcohol team. SAS to R, etc.
-
-
 
 
 

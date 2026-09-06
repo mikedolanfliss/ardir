@@ -1,7 +1,3 @@
-library(tidyverse)
-library(readxl)
-library(purrr)
-
 # HARD CODE ICD ASSIGNMENT FUNCTIONS ####
 assign_death_mechanism = function(icd_str){
   tbl_to_return = tibble(icd_str) |>
@@ -71,33 +67,3 @@ assign_death_intent = function(icd_str){
     ))
   return(tbl_to_return |> pull(intent))
 }
-
-
-
-# TABLE RECODE FUNCTIONS ####
-recode_values_regex = function(x, from_regex, to){
-  # Extend recode_values() function to accept regular expressions
- # Thanks to this dplyr issue submitted by MDF: https://github.com/tidyverse/dplyr/issues/7846
-  vctrs::vec_case_when(
-    conditions = purrr::map(from_regex, function(from_regex) str_detect(x, from_regex)),
-    values = as.list(to)
-  )
-}
- 
-recode_values_regex_tbl = function(x, regex_tbl){
-  # Wrap recode_values_regex to accept a table directly
-  tbl_to_return = tibble(x) |>
-    mutate(label = x |>
-      recode_values_regex(from_regex = regex_tbl$regex, to = regex_tbl$label))
-  return(tbl_to_return |> pull(label))
-}
-
-get_ardi_case_tbl = function(){
-  ardi_case_tbl = read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQIiNisnSOi-NJbf8ZP9BnaF_p5en2yiTsSc-UNmYrwpN9vw-eMIAfu7ix_zD915jMdYDCgVmPIgZse/pub?gid=1878924397&single=true&output=csv")
-  return(ardi_case_tbl)
-}
-
-# Example file (moved to repo as test, June 2026)
-# TODO leave a test icd table / sample in the I drive, possibly in repo.
-
- 
