@@ -10,15 +10,9 @@ cause_tbl = workbook_url |> str_glue(sheetid = 1878924397) |> read_csv()
 aaf_direct_tbl = workbook_url |> str_glue(sheetid = 354728235) |> read_csv()
 
 # RR table ####
-rr_tbl_wide = workbook_url |> str_glue(sheetid = 2127475538) |> read_csv()
-rr_tbl = rr_tbl_wide |> 
-  select(matches("cause|male|female|prev_type")) |> 
-  pivot_longer(cols = matches("female|male"), values_to = "RR", names_to = "consumption_sex") |> 
-  mutate(consumption_sex = consumption_sex |> str_remove("^RR_")) |> 
-  separate(consumption_sex, into = c("consumption", "sex")) |> 
-  pivot_wider(names_from = c("consumption"), values_from = "RR", names_prefix = "RR_")
-rr_tbl # tidy-long for now, may want to split by sex only and go wide with consumption
 
+# tidy-long for now, may want to split by sex only and go wide with consumption
+rr_tbl = fetch_rr_wide_tbl() |> pivot_rr_tbl_long()
 
 # Prev ####
 prev_tbl_wide = workbook_url |> str_glue(sheetid = 61349445) |> read_csv()
@@ -29,17 +23,7 @@ prev_tbl = prev_tbl_wide |>
 prev_tbl
 
 # AAF indirect table ####
-aaf_indirect_tbl = prev_tbl |> 
-  full_join(rr_tbl) |> # Join RRs in
-  mutate( # calculate total alcohol and excessive alcohol attributable fractions
-    total_product_sum = prev_low*(RR_low-1) + prev_high*(RR_high-1) + prev_high*(RR_high-1),
-    total_aaf = total_product_sum / (1 + total_product_sum),
-    RS2 = RR_medium / RR_low, 
-    RS3 = RR_high / RR_low,
-    excess_product_sum = prev_medium*(RS2 - 1) + prev_high*(RS3 - 1),
-    excess_aaf = excess_product_sum / (1 + excess_product_sum))
-aaf_indirect_tbl
-# aaf_indirect_tbl |> View()
+aaf_indirect_tbl = calc_indirect_aaf(prev_tbl, rr_tbl)
   
 # FARS BAC % table ####
 # %alcohol attributable (>=.08 BAC by anyone in crash) by year, state, age_group, sex

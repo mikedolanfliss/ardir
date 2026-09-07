@@ -23,12 +23,30 @@ mvc_aaf_tbl = readRDS("data/mvc_aaf_tbl.rds") |>   # TODO wrap this in a nicer f
   select(cod_long, age, sex, mvc_aaf_num = aaf_num) # could do year-specific
 cod_test_tbl3 = cod_test_tbl2 |> left_join(mvc_aaf_tbl) |> replace_na(list(mvc_aaf_num = 0))
 
+# Create and join indirect AAFs
+rr_tbl = fetch_rr_wide_tbl() |> pivot_rr_tbl_long()
+brfss_alcohol_prev_tbl = readRDS("data/brfss_alcohol_prev_tbl.rds") |> 
+  filter(state == "North Carolina") |> 
+  filter(year == max(year))
+indirect_aaf_tbl = calc_indirect_aaf(rr_tbl, brfss_alcohol_prev_tbl)
+indirect_aaf_tbl |> select(cod_long = cause, year, sex, indirect_total_aaf, indirect_excess_aaf)
+cod_test_tbl4 = cod_test_tbl3 |> 
+  left_join(indirect_aaf_tbl |> 
+    filter(year == max(year)) |> 
+    select(cod_long = cause, year, sex, indirect_total_aaf, indirect_excess_aaf)) |> 
+  replace_na(list(indirect_total_aaf = 0, indirect_excess_aaf = 0))
+
 # Combine all AAFs
-cod_test_aafsum_tbl = cod_test_tbl3 |> 
-  mutate(aaf_sum = direct_aaf_num + mvc_aaf_num) |> 
+cod_test_aafsum_tbl = cod_test_tbl4 |> 
+  mutate(aaf_sum = direct_aaf_num + mvc_aaf_num + indirect_total_aaf) |> 
   arrange(desc(aaf_sum))
-  # mutate(aaf_sum = direct_aaf_num + mvc_aaf_num)
+
+cod_test_aafsum_tbl |> arrange(desc(indirect_excess_aaf))
+
 cod_test_aafsum_tbl |> 
   group_by(cod_long) |> 
-  summarize(across(aaf_sum, sum)) |> 
+  summarize(
+    cods = paste(icd_cod, collapse = ", ") |> str_trunc(width = 20),
+    n_records = n(),
+    across(aaf_sum, sum)) |> 
   arrange(desc(aaf_sum))

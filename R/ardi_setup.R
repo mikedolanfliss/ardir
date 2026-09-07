@@ -147,3 +147,34 @@ fetch_direct_aaf_tbl = function(){
 #       mutate()
 #   }
 # }
+
+# PREVALENCE FUNCTIONS ####
+calc_indirect_aaf = function(prev_tbl, rr_tbl){
+  # TODO test/kickback if expected variables aren't prepped
+  aaf_indirect_tbl = prev_tbl |> 
+    full_join(rr_tbl) |> # Join RRs in
+    mutate( # calculate total alcohol and excessive alcohol attributable fractions
+      total_product_sum = prev_low*(RR_low-1) + prev_high*(RR_high-1) + prev_high*(RR_high-1),
+      indirect_total_aaf = total_product_sum / (1 + total_product_sum),
+      RS2 = RR_medium / RR_low, 
+      RS3 = RR_high / RR_low,
+      excess_product_sum = prev_medium*(RS2 - 1) + prev_high*(RS3 - 1),
+      indirect_excess_aaf = excess_product_sum / (1 + excess_product_sum))
+  return(aaf_indirect_tbl)
+}
+#TODO ^ this is odd w protective RRs.
+
+fetch_rr_wide_tbl = function(){
+  rr_wide_tbl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIiNisnSOi-NJbf8ZP9BnaF_p5en2yiTsSc-UNmYrwpN9vw-eMIAfu7ix_zD915jMdYDCgVmPIgZse/pub?gid=2127475538&single=true&output=csv" |> read_csv()  
+  return(rr_wide_tbl)
+}
+pivot_rr_tbl_long = function(rr_wide_tbl){
+  rr_tbl = rr_wide_tbl |> 
+    select(matches("cause|male|female|prev_type")) |> 
+    pivot_longer(cols = matches("female|male"), values_to = "RR", names_to = "consumption_sex") |> 
+    mutate(consumption_sex = consumption_sex |> str_remove("^RR_")) |> 
+    separate(consumption_sex, into = c("consumption", "sex")) |> 
+    pivot_wider(names_from = c("consumption"), values_from = "RR", names_prefix = "RR_")
+  return(rr_tbl)
+}
+# DATA VALIDATION TESTS ####
