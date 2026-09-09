@@ -107,6 +107,7 @@ fars_person_sm_tbl = prepare_fars_person_tbl(full_fars_person_tbl)
 fars_bac_pct_tbl = make_crash_bac_pct_tbl(fars_person_sm_tbl)
 mvc_aaf_tbl = make_mvc_aaf_tbl(fars_bac_pct_tbl)
 mvc_aaf_tbl |> saveRDS("data/mvc_aaf_tbl.rds")
+mvc_aaf_tbl |> saveRDS("data/mvc_aaf_tbl.csv")
 
 # TODO subfolder under data (FARS, BRFSS, etc.
 # TODO calculate US-wide? Or just join into national data allowing state variation
