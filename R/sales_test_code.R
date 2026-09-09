@@ -2,3 +2,5 @@
 
 # The above reports on sales data do not seem to be easily machine readable. 
 # Could use R to convert the tables (tessaract) or some other language. An API would be nice, but I'm unclear about the stability of sales data
+library(tidyverse)
+library(tidyverse)
