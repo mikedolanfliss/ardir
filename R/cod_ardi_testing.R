@@ -1,5 +1,4 @@
 library(tidyverse)
-
 source("R/ardi_setup.R")
 
 ardi_cod_lookup_tbl = fetch_ardi_cod_tbl() # Retrieve from online / TODO Testing
@@ -10,12 +9,12 @@ cod_test_tbl = create_synth_death_data(1000000) |> # Create 1M fake records
 # cod_test_tbl |> arrange(desc(cod_long))
 # cod_test_tbl |> count(cod_long)
 
-# Join direct AAFs
+# FIRST: Join direct AAFs
 aaf_direct_tbl = fetch_direct_aaf_tbl() |> select(cod_long, direct_aaf_num = aaf_num)
 cod_test_tbl2 = cod_test_tbl |> 
   left_join(aaf_direct_tbl) |> replace_na(list(direct_aaf_num = 0))
 
-# Join direct MVC AAFs
+# SECOND: Join direct MVC AAFs
 mvc_aaf_tbl = readRDS("data/mvc_aaf_tbl.rds") |>   # TODO wrap this in a nicer function perhaps
   filter(state == "North Carolina") |> 
   expand_age_range() |> 
@@ -23,7 +22,7 @@ mvc_aaf_tbl = readRDS("data/mvc_aaf_tbl.rds") |>   # TODO wrap this in a nicer f
   select(cod_long, age, sex, mvc_aaf_num = aaf_num) # could do year-specific
 cod_test_tbl3 = cod_test_tbl2 |> left_join(mvc_aaf_tbl) |> replace_na(list(mvc_aaf_num = 0))
 
-# Create and join indirect AAFs
+# THIRD: Create and join indirect AAFs from RRs/prevalence
 rr_tbl = fetch_rr_wide_tbl() |> pivot_rr_tbl_long()
 brfss_alcohol_prev_tbl = readRDS("data/brfss_alcohol_prev_tbl.rds") |> 
   filter(state == "North Carolina") |> 
@@ -43,6 +42,7 @@ cod_test_aafsum_tbl = cod_test_tbl4 |>
 
 cod_test_aafsum_tbl |> arrange(desc(indirect_excess_aaf))
 
+#Example aggregate table
 cod_test_aafsum_tbl |> 
   group_by(cod_long) |> 
   summarize(

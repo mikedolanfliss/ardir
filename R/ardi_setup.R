@@ -108,7 +108,7 @@ assign_ardi_cods = function(cod_tbl, ardi_cod_lookup_tbl){
     mutate(case_def_eligible = T)
 
   tbl_to_return = cod_tbl |> 
-    mutate(cod_long = icd_cod |> recode_values_regex_tbl(lookup_tbl)) |> # classify ARDI CODs)
+    mutate(cod_long = icd_cod |> recode_values_regex_tbl(regex_lookup_tbl)) |> # classify ARDI CODs)
     left_join(tidy_lookup_tbl) |> # left_join for eligibility |> 
     mutate(cod_long = case_when(
       is.na(case_def_eligible) ~ "",

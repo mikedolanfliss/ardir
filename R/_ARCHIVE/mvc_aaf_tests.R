@@ -30,7 +30,8 @@ ggsave("testing/MVC AAFs - Rhode Island Graph.png")
 make_multiyear_mvc_aafs(mvc_aaf_tbl, 2)
 make_multiyear_mvc_aafs(mvc_aaf_tbl, 3)
 make_multiyear_mvc_aafs(mvc_aaf_tbl, 2) |> write_csv("testing/2yr_mvc_aaf_tbl.csv")
-
+make_multiyear_mvc_aafs(mvc_aaf_tbl, 2) |> 
+  filter(end_year == 2021, state == "North Carolina")
   
 
 
