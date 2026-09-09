@@ -1,6 +1,8 @@
 ---
 title: "COD ARDI Example - Sep 8 2026"
-format: html
+format: 
+    html:
+        embed-resources: true
 ---
 
 
