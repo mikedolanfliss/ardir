@@ -15,6 +15,7 @@ brfss_alcohol_question_tbl = brfss_request_url |>
 brfss_alcohol_question_tbl |> saveRDS("data/brfss_alcohol_question_tbl.rds")
 # brfss_alcohol_question_tbl = readRDS("data/brfss_alcohol_question_tbl.rds")
 
+brfss_alcohol_question_tbl |> count(year)
 brfss_alcohol_question_tbl |> count(topic)
 brfss_alcohol_question_tbl |> count(topic, response)
 brfss_alcohol_question_tbl |> arrange(year, locationabbr, break_out, response, class, topic)
@@ -40,5 +41,6 @@ brfss_alcohol_prev_tbl = brfss_alcohol_question_tbl |>
   
 brfss_alcohol_prev_tbl
 brfss_alcohol_prev_tbl |> saveRDS("data/brfss_alcohol_prev_tbl.rds")
+brfss_alcohol_prev_tbl |> write_csv("data/brfss_alcohol_prev_tbl.csv")
 
 # For BRFSS, the variables we need are: survey year, sex, _age80, alcday5, avedrnk3, drnk3ge5, maxdrnks, _rfbing6, drnkany5, _sststr, _strwt and _llcpwt

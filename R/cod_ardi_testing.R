@@ -2,10 +2,12 @@ library(tidyverse)
 source("R/ardi_setup.R")
 
 ardi_cod_lookup_tbl = fetch_ardi_cod_tbl() # Retrieve from online / TODO Testing
+ardi_cod_lookup_tbl |> print(n=Inf) # 58 causes. ages are inferred.
 
 cod_test_tbl = create_synth_death_data(1000000) |> # Create 1M fake records
   assign_ardi_cods(ardi_cod_lookup_tbl) # Label 1M ICD codes with CoD. Seconds.
-  
+cod_test_tbl  
+
 # cod_test_tbl |> arrange(desc(cod_long))
 # cod_test_tbl |> count(cod_long)
 
