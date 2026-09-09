@@ -141,6 +141,24 @@ fetch_direct_aaf_tbl = function(){
   tbl_to_return = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIiNisnSOi-NJbf8ZP9BnaF_p5en2yiTsSc-UNmYrwpN9vw-eMIAfu7ix_zD915jMdYDCgVmPIgZse/pub?gid=354728235&single=true&output=csv" |> read_csv()
   return(tbl_to_return)
 }
+
+make_multiyear_mvc_aafs = function(mvc_aaf_tbl, n_years = 2){
+  # Expect certain structure, for now; later, test.
+  avail_fars_years = mvc_aaf_tbl |> distinct(year) |> pull(year)
+  mvc_aaf_multi_tbl = tibble(
+    end_year = mvc_aaf_tbl |> distinct(year) |> pull(year), n_years = n_years) |> 
+    filter((end_year - n_years + 1) %in% avail_fars_years) |> 
+    mutate(year = map2(end_year, n_years, \(x, y){seq(x - y + 1, x)})) |> 
+    unnest(year) |> 
+    mutate(data = map(year, \(x){mvc_aaf_tbl |> filter(year == x) |> select(-year)})) |> 
+    unnest(data) |> 
+    group_by(end_year, n_years, state, age_range, sex) |> 
+    summarize(across(c(n_alc_att, total_n), sum), .groups = "drop") |> 
+    mutate(aaf_num = n_alc_att / total_n) |> 
+    mutate(year_desc = str_glue("{end_year-n_years+1}-{end_year}"))
+  return(mvc_aaf_multi_tbl)
+}
+
 # expand_aaf_tbl = function(this_aaf_tbl){
 #   if(!("age" %in% names(this_aaf_tbl))){
 #     this_aaf_tbl = this_aaf_tbl |> 
