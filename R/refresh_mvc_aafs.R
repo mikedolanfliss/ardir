@@ -41,6 +41,7 @@ prepare_fars_person_tbl = function(full_fars_person_tbl){
     select(year = caseyear, state = statename, st_case, # Crash info
       age, agename, sex = sexname, # Demographics
       inj_kabco = inj_sevname, # Severity
+      crash_pos = per_typname, # crash position, needed for calculation of alcohol-involved fault
       alc_bac_result = alc_res, alc_bac_text = alc_resname)# Alcohol and BAC info
   # Recode ####
   fars_person_sm_tbl = fars_person_sm_tbl |> 
@@ -55,6 +56,7 @@ prepare_fars_person_tbl = function(full_fars_person_tbl){
         T ~ FALSE)) # "Other / Mixed Cause"
 
   fars_crashbac_tbl = fars_person_sm_tbl |>
+    filter(crash_pos |> str_detect("Driver|yclist|Pedestrian|Personal Convey")) |> 
     group_by(year, state, st_case) |> 
     summarize(crash_direct_alc_attributable = any(direct_alc_attributable))
 
@@ -68,8 +70,6 @@ prepare_fars_person_tbl = function(full_fars_person_tbl){
 # Create & rejoin crash BAC % table ####
 
 # fars_person_sm_tbl |> filter(st_case |> str_detect("^1000[123]$")) |> arrange(st_case)
-
-fars_person_sm_tbl |> saveRDS("data/fars_person_sm_tbl.rds")
 
 make_crash_bac_pct_tbl = function(fars_person_sm_tbl){
   fars_bac_pct_tbl = fars_person_sm_tbl |>   
@@ -100,7 +100,29 @@ make_mvc_aaf_tbl = function(fars_bac_pct_tbl){
 # full_fars_person_tbl = refresh_fars_person_tbl() # fars_request_tbl = refresh_fars_person_tbl(state = "North%20Carolina") # Doesn't work yet
 # full_fars_person_tbl |> saveRDS("temp/fars_request_tbl.rds") # 86 megs, 1.3M rows x 162 variables
 full_fars_person_tbl = readRDS("temp/fars_request_tbl.rds") # 86 megs, 1.3M rows x 162 variables. 10s to read
+
 fars_person_sm_tbl = prepare_fars_person_tbl(full_fars_person_tbl)
+fars_person_sm_tbl |> saveRDS("data/fars_person_sm_tbl.rds")
+fars_person_sm_tbl = readRDS("data/fars_person_sm_tbl.rds")
+fars_person_sm_tbl |> filter(state == "North Carolina")
+fars_person_sm_tbl |> names()
+
+# Aside for BAC check ####
+fars_person_sm_tbl |> 
+  filter(direct_alc_attributable) |> select(crash_pos, alc_bac_result, direct_alc_attributable, crash_direct_alc_attributable) |> 
+  arrange(desc(is_ped = crash_pos |> str_detect("Ped")))
+
+  # Peds only
+mvc_alc_attr_ped_tbl = fars_person_sm_tbl |> 
+  mutate(is_ped = crash_pos |> str_detect("Ped")) |> 
+  group_by(state, is_ped) |> 
+  count(direct_alc_attributable) |> 
+  mutate(pct = n/sum(n)*100) |> 
+  filter(direct_alc_attributable)
+
+mvc_alc_attr_ped_tbl |> write_csv("data/mvc_alc_attr_ped_tbl.csv")
+
+
 # Save & pickup analysis here (TODO split these tasks into different functions)
 # fars_person_sm_tbl |> saveRDS("data/fars_person_sm_tbl_orig.rds")
 # fars_person_sm_tbl = readRDS("data/fars_person_sm_tbl_orig.rds")
