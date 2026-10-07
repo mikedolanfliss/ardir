@@ -113,14 +113,32 @@ fars_person_sm_tbl |>
   arrange(desc(is_ped = crash_pos |> str_detect("Ped")))
 
   # Peds only
+fars_person_sm_tbl |> count(year)
 mvc_alc_attr_ped_tbl = fars_person_sm_tbl |> 
   mutate(is_ped = crash_pos |> str_detect("Ped")) |> 
   group_by(state, is_ped) |> 
   count(direct_alc_attributable) |> 
   mutate(pct = n/sum(n)*100) |> 
   filter(direct_alc_attributable)
-
 mvc_alc_attr_ped_tbl |> write_csv("data/mvc_alc_attr_ped_tbl.csv")
+
+fars_person_sm_tbl |> 
+  mutate(is_ped = crash_pos |> str_detect("Ped")) |> 
+  filter(is_ped) |> 
+  group_by(year, state) |> 
+  count(direct_alc_attributable) |> 
+  mutate(pct = round(n/sum(n)*100), 1) |> 
+  filter(direct_alc_attributable) |> 
+  mutate(label = str_glue("{pct}\nn = {n}")) |>   
+  ggplot(aes(year, pct, color = state))+
+  geom_point(aes(size = n))+
+  geom_line()+
+  facet_wrap(~state)+
+  guides(color = "none")+
+  labs(
+    title = "Pedestrian involvement in fatal crashes w/ >0.08 BAC", 
+    subtitle = str_glue("{min(fars_person_sm_tbl$year)} - {max(fars_person_sm_tbl$year)}"))
+ggsave("graphs/fars_ped_bac_line_graph.png", width = 10, height = 10)  
 
 
 # Save & pickup analysis here (TODO split these tasks into different functions)
