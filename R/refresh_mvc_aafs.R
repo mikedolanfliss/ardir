@@ -147,7 +147,7 @@ ggsave("graphs/fars_ped_bac_line_graph.png", width = 10, height = 10)
 fars_bac_pct_tbl = make_crash_bac_pct_tbl(fars_person_sm_tbl)
 mvc_aaf_tbl = make_mvc_aaf_tbl(fars_bac_pct_tbl)
 mvc_aaf_tbl |> saveRDS("data/mvc_aaf_tbl.rds")
-mvc_aaf_tbl |> saveRDS("data/mvc_aaf_tbl.csv")
+mvc_aaf_tbl |> write_csv("data/mvc_aaf_tbl.csv")
 
 # TODO subfolder under data (FARS, BRFSS, etc.
 # TODO calculate US-wide? Or just join into national data allowing state variation
